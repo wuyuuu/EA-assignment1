@@ -12,30 +12,29 @@
 using namespace std;
 #pragma GCC optimize(3)
 
-//const int n = 29;
-//double bestRoute = 27603; 
-//const char *dir = "Sahara.txt";
+const int n = 29;//for Sahara ans = 27603
+double bestRoute = 27603; 
+const char *dir = "Sahara.txt";
 
-//const int n = 38;
+//const int n = 38;//for dijbouti ans = 6656
 //double bestRoute = 6659.432;
 //const char* dir = "Djibouti.txt";
 
-const int n = 194;
-double bestRoute = 9353.55;
-const char *dir = "Qatar.txt";
+//const int n = 194;
+//double bestRoute = 9353.55;// for Qatar ans = 9352
+//const char *dir = "Qatar.txt";
 
-bool PRE_EA = true; // 是否用遗传算法初始化种群，默认为是 
-double TIME_LIMIT = 150; //时间限制，默认为150s
-int hybrid_generation = 100; // 采用时间限制与判断是否最优作为停止标准后此参数没啥意义，仅为了不报错
+bool PRE_EA = false; // 是否用遗传算法初始化种群，默认为否 
+double TIME_LIMIT = 150; 
+int hybrid_generation = 100;
 int popuSize = 100;
 double m_rate = 0.05;
-int experiment_times = 1; // 实验次数
+int experiment_times = 1;
 int robin_constant = popuSize / 10;
 
 double x[n], y[n];
 double G[n][n];
 
-//对个体进行评估并返回评估值
 double eval(vector<int> &a) {
     double ans = 0;
     for (int i = 0; i < n; i++) {
@@ -45,7 +44,7 @@ double eval(vector<int> &a) {
     }
     return 1 / ans;
 }
-//对群体进行评估并返回对应的评估值
+
 vector<double> eval_vector(vector<vector<int>> &p) {
     vector<double> temp;
     for (int i = 0; i < p.size(); i++) {
@@ -54,7 +53,7 @@ vector<double> eval_vector(vector<vector<int>> &p) {
     }
     return temp;
 }
-//计算城市i与城市j的欧氏距离，national TSP中计算欧氏距离时round为整数，导致了误差
+
 double dist(int i, int j) {
 
     return sqrt(1.0 * (x[i] - x[j]) * (x[i] - x[j]) + (y[i] - y[j]) * (y[i] - y[j]));
@@ -62,7 +61,7 @@ double dist(int i, int j) {
 
 vector<int> ans;
 double bestv = 1.0 / 2047483648.0;
-//getBest()更新best-so-far的值bestv和路径ans
+
 double getBest(vector<vector<int>> p) {
     vector<double> score = eval_vector(p);
     vector<int> t;
@@ -79,7 +78,7 @@ double getBest(vector<vector<int>> p) {
     }
     return temp;
 }
-//计算最优质、均值、方差
+
 vector<double> Stat(vector<double> score) {
     double mean = 0;
     for (auto num:score)mean += 1.0 / num;
@@ -125,7 +124,7 @@ vector<int> shuffle_mutation(vector<int> a, int k) {
     random_shuffle(a.begin() + start, a.begin() + start + k);
     return a;
 }
-// edge_mutation 即为 reverse_mutation
+
 vector<int> edge_mutation(vector<int> a) {
     int pos1 = rand() % n;
     int pos2 = rand() % n;
@@ -134,7 +133,7 @@ vector<int> edge_mutation(vector<int> a) {
     return a;
 }
 
-// roulette-wheel，返回被选择的个体下标
+
 int wheel(vector<double> prob) {
     double r = rand() % 10000 * 1.0 / 10000.0;
     int i = 0;
@@ -144,7 +143,7 @@ int wheel(vector<double> prob) {
     }
     return i;
 }
-// round-robin tournament ，返回每个个体胜场次数
+
 vector<double> robin(vector<double> score) {
     vector<double> cnt(score.size(), 0);
     vector<int> pos;
@@ -159,7 +158,7 @@ vector<double> robin(vector<double> score) {
 
 }
 
-// simple rank-based selection，返回每个个体被选中的概率
+
 vector<double> rank_score(vector<int> pos) {
     vector<double> ans(pos.size(), 0.0);
     double tot = pos.size() * (pos.size() - 1) / 2;
@@ -170,7 +169,7 @@ vector<double> rank_score(vector<int> pos) {
     }
     return ans;
 }
-// local search, MN表示multiple neighbourhood
+
 bool inplace_MN_Search(vector<int> &a) {
     double ori = 1.0 / eval(a);
     int swapi = 0, swapj = 0;
@@ -267,11 +266,28 @@ bool inplace_MN_Search(vector<int> &a) {
     return true;
 }
 
-//返回下一代种群
+
+vector<int> diverse(vector<int> a, vector<vector<int>> P) {
+    vector<int> cnt(P.size(), 0);
+    for (int i = 0; i < P.size(); i++) {
+        int s = 0;
+        while(P[i][s]!=a[0])s++;
+        for (int j = 0; j < n; j++) {
+            if (a[j] != P[i][(s+j)%n])cnt[i]++;
+        }
+    }
+    vector<int> pos;
+    for (int i = 0; i < P.size(); i++)pos.push_back(i);
+    sort(pos.begin(), pos.end(), [&](int i, int j) {
+        return cnt[i] > cnt[j];
+    });
+    return pos;
+}
+
+
 vector<vector<int>> hybrid_nextGeneration(vector<vector<int>> P, double mutate_rate) {
 
     vector<vector<int>> ans;
-    //local search
     for (int i = 0; i < P.size(); i++)
         if (!inplace_MN_Search(P[i]) && ans.size() < popuSize) {
             //            P[i] = shuffle_mutation(P[i],n/10);
@@ -292,9 +308,12 @@ vector<vector<int>> hybrid_nextGeneration(vector<vector<int>> P, double mutate_r
     sort(pos.begin(), pos.end(), [&](int i, int j) {
         return score[i] > score[j];
     });
-//    精英主义
+//    classic elitism
     for (int i = 0; i < n_p / 10; i++)ans.push_back(P[pos[i]]);
-//    rank-based selection
+//      diverse elitism
+//    auto d_pos = diverse(P[pos[0]], P);
+//    for (int i = 0; i < n_p / 10; i++)ans.push_back(P[d_pos[i]]);
+
     score = rank_score(pos);
 
     int cnt = ans.size();
@@ -322,7 +341,7 @@ vector<vector<int>> hybrid_nextGeneration(vector<vector<int>> P, double mutate_r
 
     for (auto v:score)best = max(best, v);
     if (best >= 1.0 / bestRoute)return P;
-// round-robin tournament
+
     score = robin(score);
     for (int i = popuSize; i != ans.size(); i++)
         pos.push_back(i);
@@ -390,7 +409,7 @@ vector<vector<int>> only_EA(vector<vector<int>> P, double mutate_rate) {
     return temp;
 }
 
-// 种群初始化
+
 vector<vector<int>> init_p(int p) {
     bestv = 1.0 / 2047483648.0;
     vector<vector<int>> ans;
@@ -431,8 +450,10 @@ int main() {
         }
     }
     
+    vector<double> log;
+    vector<double> time_log;
     int bestCnt = 0;
-	
+    vector<double> best_log;
     for (int i = 0; i < experiment_times; i++) {
         //        初试化种群，计时器，best-so-far记录
         hybrid_generation = 100;
@@ -465,7 +486,7 @@ int main() {
         best_log.push_back(1.0 / bestv);
         if (1.0 / bestv < bestRoute)bestCnt++;
     }
-    cout << "成功搜索到最优解的次数为 = " << bestCnt << endl;
+    cout << "BestCnt = " << bestCnt << endl;
 
     showtime(time_log);
 
