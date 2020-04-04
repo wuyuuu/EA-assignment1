@@ -431,10 +431,8 @@ int main() {
         }
     }
     
-    vector<double> log;
-    vector<double> time_log;
     int bestCnt = 0;
-    vector<double> best_log;
+	
     for (int i = 0; i < experiment_times; i++) {
         //        初试化种群，计时器，best-so-far记录
         hybrid_generation = 100;
