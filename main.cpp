@@ -25,11 +25,11 @@ double bestRoute = 9353.55;
 const char *dir = "Qatar.txt";
 
 bool PRE_EA = true; // 是否用遗传算法初始化种群，默认为是 
-double TIME_LIMIT = 150; 
-int hybrid_generation = 100;
+double TIME_LIMIT = 150; //时间限制，默认为150s
+int hybrid_generation = 100; // 采用时间限制与判断是否最优作为停止标准后此参数没啥意义，仅为了不报错
 int popuSize = 100;
 double m_rate = 0.05;
-int experiment_times = 1;
+int experiment_times = 1; // 实验次数
 int robin_constant = popuSize / 10;
 
 double x[n], y[n];
@@ -467,7 +467,7 @@ int main() {
         best_log.push_back(1.0 / bestv);
         if (1.0 / bestv < bestRoute)bestCnt++;
     }
-    cout << "BestCnt = " << bestCnt << endl;
+    cout << "成功搜索到最优解的次数为 = " << bestCnt << endl;
 
     showtime(time_log);
 
