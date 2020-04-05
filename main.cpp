@@ -12,19 +12,19 @@
 using namespace std;
 #pragma GCC optimize(3)
 
-const int n = 29;//for Sahara ans = 27603
+const int n = 29;
 double bestRoute = 27603; 
 const char *dir = "Sahara.txt";
 
-//const int n = 38;//for dijbouti ans = 6656
+//const int n = 38;
 //double bestRoute = 6659.432;
 //const char* dir = "Djibouti.txt";
 
 //const int n = 194;
-//double bestRoute = 9353.55;// for Qatar ans = 9352
+//double bestRoute = 9353.55;
 //const char *dir = "Qatar.txt";
 
-bool PRE_EA = false; // 是否用遗传算法初始化种群，默认为否 
+bool PRE_EA = false; // Whether initialize population with pure Genetic Algorithn
 double TIME_LIMIT = 150; 
 int hybrid_generation = 100;
 int popuSize = 100;
@@ -429,9 +429,9 @@ void showtime(vector<double> t) {
         w = max(w, ele);
         m += ele;
     }
-    cout <<"最短搜索时间"<< b << endl;
-    cout << "最坏搜索时间"<< w << endl;
-    cout << "平均搜索时间"<<m / t.size() << endl;
+    cout <<"best search time: "<< b <<"s"<< endl;
+    cout << "worst search time: "<< w <<"s"<< endl;
+    cout << "average search time: "<<m / t.size() <<"s"<< endl;
 }
 
 
@@ -455,7 +455,7 @@ int main() {
     int bestCnt = 0;
     vector<double> best_log;
     for (int i = 0; i < experiment_times; i++) {
-        //        初试化种群，计时器，best-so-far记录
+        
         hybrid_generation = 100;
         clock_t startTime = clock();
         vector<vector<int>> p0 = init_p(popuSize);
@@ -467,12 +467,12 @@ int main() {
 
         getBest(p0);
         if(PRE_EA)
-        cout << "采用EA初始化种群中的最短路径为: " << 1.0 / bestv<< endl;
+        cout << "shortest length in the initial population: " << 1.0 / bestv<< endl;
         for (int g = 0; g < hybrid_generation; g++) {
 
             p0 = hybrid_nextGeneration(p0, m_rate);
             getBest(p0);
-            cout << "第" << g+1 << "代，best so far: " << 1.0 / bestv <<  endl;
+            cout << "In generation " << g+1 << ", best so far: " << 1.0 / bestv <<  endl;
             Stat(eval_vector(p0));
             if (1.0 / bestv < bestRoute)break;
             else hybrid_generation++;
