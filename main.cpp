@@ -88,7 +88,7 @@ vector<double> Stat(vector<double> score) {
     var /= (score.size() * 1.0);
     double b = 0;
     for (auto num:score)b = max(num, b);
-    printf("群体中：best = %f mean = %f var = %f\n", 1.0 / b, mean, var);
+    printf("In population：best = %f mean = %f var = %f\n", 1.0 / b, mean, var);
     return {mean, var};
 }
 
