@@ -12,7 +12,7 @@ n 为城市数目，bestRoute为全局最优值（注 national TSP计算城市�
 
 ![](./qatar_result.png)
 ![](./sahara_result.png)
-![](./dijbouti.png)
+![](./djibouti.png)
 
 ### 可选调整参数
 
